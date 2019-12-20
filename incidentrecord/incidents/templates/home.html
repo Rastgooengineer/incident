@@ -1,11 +1,9 @@
 
-{# incidents/templates/home.html #}
-{% load render_table from django_tables2 %}
 {% load static %}
 <html>
 <head>
-<meta charset="UTF-8">
-<style>
+    <meta charset="UTF-8">
+    <style>
 * {
   box-sizing: border-box;
 }
@@ -23,54 +21,50 @@ body {
   min-width: 100%;
   min-height: 100%;
 }
-</style>
 
-<title>Videos</title>
-    <link href="http://vjs.zencdn.net/4.12/video-js.css" rel="stylesheet">
-<script src="http://vjs.zencdn.net/4.12/video.js"></script>
+    </style>
+    <title>Videos</title>
 </head>
 <body>
-
-
-
 <h1>List of Videos</h1>
 <table border="1" width="600">
-<tr>
-<td>Count</td>
-<td>Time</td>
-<td>Name</td>
-<td>Type</td>
-<td>Image</td>
-</tr>
+    <tr>
+        <td>Count</td>
+        <td>Time</td>
+        <td>Name</td>
+        <td>Type</td>
+        <td>Image</td>
+    </tr>
 
-{% for entry in allvideos %}
-<tr>
-<td>{{ entry.index }}</td>
-<td>{{ entry.time }}</td>
-<td>{{ entry.name}}</td>
-<td>{{ entry.type}}</td>
-      <source src="{% static '/videos/mov_bbb.mp4' %}" type="video/mp4">
+    {% for entry in allvideos %}
 
-<td>
-    <div style="text-align:center">
-  <!--button onclick="makeSmall()">Big</button-->
-  <!--button onclick="makeBig()">full screen</button-->
-  <!--button onclick="makeNormal()">Normal</button-->
-  <!--button onclick="playPause()">Play/Pause</button-->
+    <tr>
 
+        <td>{{ entry.id }}</td>
+        <td>{{ entry.time }}</td>
+        <td>{{ entry.name}}</td>
+        <td>{{ entry.type}}</td>
+        <td>
+            <div style="text-align:center">
+                <video id="video1" width="150">
+                    <source src="{% static '/videos/mov_bbb.mp4' %}" type="video/mp4">
+                    Your browser does not support HTML5 video.
+                </video>
+                <br><br>
+                <a href="{% static '/videos/mov_bbb.mp4' %}" id="video2" target="_blank">
+                    <button onclick="playPause()">Play</button>
+                </a>
+                <a download="GFG.mp4" href="{% static '/videos/mov_bbb.mp4' %}">
+                    <button type="button">Download</button>
+                </a>
+                <br><br>
+            </div>
 
-  <video id="video1" width="150" >
-    <source src="{% static '/videos/mov_bbb.mp4' %}" type="video/mp4" >
-    Your browser does not support HTML5 video.
-  </video>
-          <br><br>
-  <a href="{% static '/videos/mov_bbb.mp4' %}" target="_blank"  id="video2">
-  <button onclick="playPause()">Play</button>
-  </a>
-       <a href="{% static '/videos/mov_bbb.mp4' %}" download="GFG">
-        <button type="button" >Download</button>
-  </a>
-</div>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
 
 <script>
 var myVideo = document.getElementById("video1");
@@ -97,10 +91,5 @@ function makeNormal() {
     myVideo.width = 420;
 }
 
-</script>
-</td>
-</tr>
-{% endfor %}
-</table>
-</body>
 
+</script>
