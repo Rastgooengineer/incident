@@ -1,95 +1,202 @@
-
 {% load static %}
 <html>
 <head>
-    <meta charset="UTF-8">
     <style>
-* {
-  box-sizing: border-box;
+table {
+  border-collapse: collapse;
+  border-spacing: 0px;
+  width: 98%;
+  border: 1px solid #ddd;
+  align:center;
+      float: none;
+          margin: 0 auto;
 }
 
-body {
-  margin: 0;
-  font-family: Arial;
-  font-size: 17px;
+th, td {
+  text-align: center;
+  padding: 16px;
+  border: 1px solid #dddddd;
 }
 
-#myVideo {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  min-width: 100%;
-  min-height: 100%;
+tr:nth-child(even) {
+  background-color: #f2f2f2;
 }
-
-    </style>
+</style>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static '/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" media="screen" href="{% static '/css/bootstrap-datetimepicker.css' %}">
+    <script src="{% static '/jquery/jquery-3.4.1.min.js' %}"></script>
+    <script src="{% static '/js/bootstrap.min.js' %}"></script>
+    <script src="{% static '/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static '/moment/moment.js'%}"></script>
     <title>Videos</title>
 </head>
+
 <body>
-<h1>List of Videos</h1>
-<table border="1" width="600">
-    <tr>
-        <td>Count</td>
-        <td>Time</td>
-        <td>Name</td>
-        <td>Type</td>
-        <td>Image</td>
-    </tr>
-
-    {% for entry in allvideos %}
-
-    <tr>
-
-        <td>{{ entry.id }}</td>
-        <td>{{ entry.time }}</td>
-        <td>{{ entry.name}}</td>
-        <td>{{ entry.type}}</td>
-        <td>
-            <div style="text-align:center">
-                <video id="video1" width="150">
-                    <source src="{% static '/videos/mov_bbb.mp4' %}" type="video/mp4">
-                    Your browser does not support HTML5 video.
-                </video>
-                <br><br>
-                <a href="{% static '/videos/mov_bbb.mp4' %}" id="video2" target="_blank">
-                    <button onclick="playPause()">Play</button>
-                </a>
-                <a download="GFG.mp4" href="{% static '/videos/mov_bbb.mp4' %}">
-                    <button type="button">Download</button>
-                </a>
-                <br><br>
+<h3><b>&nbsp &nbsp Event Journal</b></h3>
+<div class="panel panel-default" style="width: 97%;margin:0 auto;">
+    <div class="panel-heading">Filter Setting
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-3">Event Type</div>
+            <div class="col-sm-9">
+                <div class="checkbox">
+                    <label><input type="checkbox" value="">Stop</label>
+                    &nbsp
+                    <label><input type="checkbox" value="">Queue</label>
+                    &nbsp
+                    <label><input type="checkbox" value="">Wrong Way</label>
+                    &nbsp
+                    <label><input type="checkbox" value="">Pedestrian</label>
+                    &nbsp
+                    <label><input type="checkbox" value="">image degradation</label>
+                </div>
             </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-sm-3">Priod</div>
+            <div class="col-sm-9">
+                <div class="container">
+                    <div class='col-md-6'>
+                        <div class="form-group">
+                            <div class='input-group date' id='datetimepicker6'>
+                                <input type='text' class="form-control"/>
+                                <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                $(function () {
+                $('#datetimepicker6').datetimepicker( {
+             //   maxDate: moment(),
+           //     allowInputToggle: true,
+              //  enabledHours : false,
+               // format: moment().format('YYYY-MM-DD'),
+                //format: moment().format('LLLL'),
+             //   locale: "en"
+                });
+            //    $('#datetimepicker7').datetimepicker({
+              //  useCurrent: false, //Important! See issue #1075
+              //  allowInputToggle: true,
+               // enabledHours : false
+               // });
+               // $("#datetimepicker6").on("dp.change", function (e) {
+               // $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
+               // });
+               // $("#datetimepicker7").on("dp.change", function (e) {
+               // $('#datetimepicker6').data("DateTimePicker").maxDate(e.date);
+               // });
+                //});
 
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+
+
+                </script>
+
+
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-9">
+                <button type="button" class="btn btn-success">Apply</button>
+                <button type="button" class="btn btn-warning">Download CSV</button>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+<div class="panel  panel-default" style="width: 97%;margin:0 auto;">
+    <div class="panel-heading">Event List
+    </div>
+
+
+    <div class="panel-body">
+
+
+                <div class="container">
+                    <div class="dropdown">
+                        <label class="form-check-label" for="dropdownMenu1">Show </label>
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+                                style="width: 4%;text-align:left">
+                            10
+                            <span class="caret"></span>
+                        </button>
+                        <label class="form-check-label" for="dropdownMenu1">events</label>
+
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"  style="width: 4%;">
+                            <li  style="width: 4%;">10</li>
+                            <li  style="width: 4%;">15</li>
+                            <li  style="width: 4%;">20</li>
+                            <!--li role="separator" class="divider"></li>
+                            <li><a href="#">Separated link</a></li-->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+    <br>
+            <table>
+                <tr>
+                    <th>Count</th>
+                    <th>Time</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Image</th>
+                </tr>
+                {% for entry in allvideos %}
+                <tr>
+                    <td>{{ entry.id }}</td>
+                    <td>{{ entry.time }}</td>
+                    <td>{{ entry.name}}</td>
+                    <td>{{ entry.type}}</td>
+                    <td>
+                        <div style="    text-align:center">
+                            <video id="video1" width="150">
+                                <source src="{% static '/videos/mov_bbb.mp4' %}" type="video/mp4">
+                                Your browser does not support HTML5 video.
+                            </video>
+                            <br><br>
+                            <a href="{% static '/videos/mov_bbb.mp4' %}" id="video2" target="_blank">
+                                <button onclick="playPause()">Play</button>
+                            </a>
+                            <a download="GFG.mp4" href="{% static '/videos/mov_bbb.mp4' %}">
+                                <button type="button">Download</button>
+                            </a>
+                            <br><br>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+
+</div>
 </body>
-
 <script>
 var myVideo = document.getElementById("video1");
-
 function playPause() {
   if (myVideo.paused)
       myVideo.width = 1024;
       myVideo.play();
             myVideo.width = 1024;
-
   else
     myVideo.pause();
 }
-
 function makeBig() {
     myVideo.width = 1024;
 }
-
 function makeSmall() {
     myVideo.width = 320;
 }
-
 function makeNormal() {
     myVideo.width = 420;
 }
+
 
 
 </script>
