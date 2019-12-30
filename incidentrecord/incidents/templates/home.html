@@ -62,6 +62,7 @@ tr:nth-child(even) {
                     <div class='col-md-6'>
                         <div class="form-group">
                             <div class='input-group date' id='datetimepicker6'>
+
                                 <input type='text' class="form-control"/>
                                 <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-calendar"></span>
@@ -70,42 +71,51 @@ tr:nth-child(even) {
                         </div>
                     </div>
                 </div>
-                <script>
-                $(function () {
-                $('#datetimepicker6').datetimepicker( {
-             //   maxDate: moment(),
-           //     allowInputToggle: true,
-              //  enabledHours : false,
-               // format: moment().format('YYYY-MM-DD'),
-                //format: moment().format('LLLL'),
-             //   locale: "en"
-                });
-            //    $('#datetimepicker7').datetimepicker({
-              //  useCurrent: false, //Important! See issue #1075
-              //  allowInputToggle: true,
-               // enabledHours : false
-               // });
-               // $("#datetimepicker6").on("dp.change", function (e) {
-               // $('#datetimepicker7').data("DateTimePicker").minDate(e.date);
-               // });
-               // $("#datetimepicker7").on("dp.change", function (e) {
-               // $('#datetimepicker6').data("DateTimePicker").maxDate(e.date);
-               // });
-                //});
-
-
-
-                </script>
-
-
             </div>
         </div>
         <br>
         <div class="row">
             <div class="col-sm-3"></div>
             <div class="col-sm-9">
-                <button type="button" class="btn btn-success">Apply</button>
+                <button type="button" class="btn btn-success" onclick="tableCreate()">Apply</button>
                 <button type="button" class="btn btn-warning">Download CSV</button>
+                <!--<input type="hidden" id="myVar" name="post_list" value="{{ post_list }}">-->
+                <script>
+                    function tableCreate() {
+                        $("#hii tr>td").remove();
+                        var typeStop = {{type_stop | safe }};
+                        let tbl = document.getElementById("hii");
+                        for (var i = 0; i < typeStop.length; i++) {
+                                 let newRow = tbl.insertRow(-1);
+                                 let idCell = newRow.insertCell(0);
+                                 let timeCell = newRow.insertCell(1);
+                                 let nameCell = newRow.insertCell(2);
+                                 let typeCell = newRow.insertCell(3);
+                                 let imageCell = newRow.insertCell(4);
+                                 var obj = typeStop[i];
+                                 for (var key in  obj) {
+                                            let newText = document.createTextNode(obj[key])
+                                            if (key == 'id' ) {
+                                            idCell.appendChild(newText);
+                                            }
+                                            else if (key == 'videodatetime') {
+                                            timeCell.appendChild(newText);
+                                            }
+                                            else if (key == 'name' ) {
+                                            nameCell.appendChild(newText);
+                                            }
+                                            else if (key == 'type') {
+                                            typeCell.appendChild(newText);
+                                             }
+                                            else if (key == 'video_name') {
+                                            imageCell.innerHTML = '<video id="video1" width="150"><source src="{% get_static_prefix %}videos/{{ video_name}}.mp4" type="video/mp4">Your browser does not support HTML5 video.</video><br><br><a href="{% get_static_prefix %}videos/{{video_name}}.mp4" id="video2" target="_blank"><button onclick="playPause()">Play</button></a><a download="GFG.mp4" href="{% get_static_prefix %}videos/{{newText}}.mp4"><button type="button">Download</button></a>';
+                                             }
+                                 }
+                                 addRow('hii')
+                              }
+                        }
+                </script>
+
             </div>
         </div>
     </div>
@@ -114,70 +124,67 @@ tr:nth-child(even) {
 <div class="panel  panel-default" style="width: 97%;margin:0 auto;">
     <div class="panel-heading">Event List
     </div>
-
-
     <div class="panel-body">
+        <div class="container">
+            <div class="dropdown">
+                <label class="form-check-label" for="dropdownMenu1">Show </label>
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+                        style="width: 4%;text-align:left">
+                    10
+                    <span class="caret"></span>
+                </button>
+                <label class="form-check-label" for="dropdownMenu1">events</label>
 
-
-                <div class="container">
-                    <div class="dropdown">
-                        <label class="form-check-label" for="dropdownMenu1">Show </label>
-                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
-                                style="width: 4%;text-align:left">
-                            10
-                            <span class="caret"></span>
-                        </button>
-                        <label class="form-check-label" for="dropdownMenu1">events</label>
-
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"  style="width: 4%;">
-                            <li  style="width: 4%;">10</li>
-                            <li  style="width: 4%;">15</li>
-                            <li  style="width: 4%;">20</li>
-                            <!--li role="separator" class="divider"></li>
-                            <li><a href="#">Separated link</a></li-->
-                        </ul>
-                    </div>
-                </div>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"  style="width: 4%;">
+                    <li  style="width: 4%;">10</li>
+                    <li  style="width: 4%;">15</li>
+                    <li  style="width: 4%;">20</li>
+                    <!--li role="separator" class="divider"></li>
+                    <li><a href="#">Separated link</a></li-->
+                </ul>
             </div>
+        </div>
+    </div>
     <br>
-            <table>
-                <tr>
-                    <th>Count</th>
-                    <th>Time</th>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Image</th>
-                </tr>
-                {% for entry in allvideos %}
-                <tr>
-                    <td>{{ entry.id }}</td>
-                    <td>{{ entry.time }}</td>
-                    <td>{{ entry.name}}</td>
-                    <td>{{ entry.type}}</td>
-                    <td>
-                        <div style="    text-align:center">
-                            <video id="video1" width="150">
-                                <source src="{% static '/videos/mov_bbb.mp4' %}" type="video/mp4">
-                                Your browser does not support HTML5 video.
-                            </video>
-                            <br><br>
-                            <a href="{% static '/videos/mov_bbb.mp4' %}" id="video2" target="_blank">
-                                <button onclick="playPause()">Play</button>
-                            </a>
-                            <a download="GFG.mp4" href="{% static '/videos/mov_bbb.mp4' %}">
-                                <button type="button">Download</button>
-                            </a>
-                            <br><br>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
+    <table id="hii">
+        <tr>
+            <th>Count</th>
+            <th>Time</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Image</th>
+        </tr>
+        {% for entry in allvideos %}
+        <tr>
+            <td>{{ entry.id }}</td>
+            <td>{{ entry.videodatetime}}</td>
+            <td>{{ entry.name}}</td>
+            <td>{{ entry.type}}</td>
+            <td>
+                <div style="    text-align:center">
+                    <video id="video1" width="150">
+                        <source src="{% get_static_prefix %}videos/{{ entry.video_name}}.mp4"  type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                    <br><br>
+                    <a href="{% get_static_prefix %}videos/{{ entry.video_name}}.mp4" id="video2" target="_blank">
+                        <button onclick="playPause()">Play</button>
+                    </a>
+                    <a download="GFG.mp4" href="{% get_static_prefix %}videos/{{ entry.video_name}}.mp4">
+                        <button type="button">Download</button>
+                    </a>
+                    <br><br>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 
 </div>
 </body>
 <script>
+var myTable = document.getElementById("hii");
 var myVideo = document.getElementById("video1");
 function playPause() {
   if (myVideo.paused)
@@ -196,7 +203,4 @@ function makeSmall() {
 function makeNormal() {
     myVideo.width = 420;
 }
-
-
-
 </script>
