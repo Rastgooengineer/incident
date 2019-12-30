@@ -1,6 +1,10 @@
 from django.http import Http404
 from django.shortcuts import render
 from .models import IncidentsInf
+from django.core.serializers.json import DjangoJSONEncoder
+import json
+from django.core import serializers
+
 def index(request):
     videoname = IncidentsInf.objects.filter(check = 0)
     for obj in videoname:
@@ -13,7 +17,11 @@ def index(request):
         obj.save()
 
     try:
-        allvideos = IncidentsInf.objects.all()
+        type_stop = json.dumps(list(IncidentsInf.objects.filter(type = "Stop").values()), sort_keys=True, indent=1, cls=DjangoJSONEncoder)
+        allvideos = IncidentsInf.objects.all().values()
+        print(type_stop)
+        print ("############")
+        print ((allvideos))
     except IncidentsInf.DoesNotExist:
         raise Http404("Question does not exist")
-    return render(request, 'home.html',  {'allvideos': allvideos})
+    return render(request, 'home.html',  {'allvideos': allvideos, 'type_stop': type_stop})
