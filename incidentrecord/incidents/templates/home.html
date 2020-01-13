@@ -25,12 +25,38 @@ tr:nth-child(even) {
 
     <script src="{% static '/jQuery-3.3.1/jquery-3.3.1.js' %}"></script>
     <script src="{% static '/DataTables/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static '/DataTables/js/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static '/DataTables/js/buttons.flash.min.js' %}"></script>
+    <script src="{% static '/DataTables/js/buttons.html5.min.js' %}"></script>
+
+
     <script src="{% static '/moment/moment.js' %}"></script>
+    <script src="{% static '/moment/datetime-moment.js' %}"></script>
     <script src="{% static '/datetimepicker/js/bootstrap-datetimepicker.min.js' %}"></script>
     <link rel="stylesheet" href="{% static '/Bootstrap-3.3.7/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static '/DataTables/css/jquery.dataTables.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static '/DataTables/css/buttons.dataTables.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static '/datetimepicker/css/bootstrap-datetimepicker.min.css' %}">
     <script>
+    $.fn.dataTable.ext.search.push(
+   function( settings, data, dataIndex ) {
+     var min = Date.parse( $('#dateTimePickerFrom').val());
+     var max = Date.parse( $('#dateTimePickerTo').val());
+     var date = Date.parse( data[2] ) || 0;
+
+      if ( ( isNaN( min ) && isNaN( max ) ) ||
+           ( isNaN( min ) && date <= max ) ||
+           ( min <= date   && isNaN( max ) ) ||
+           ( min <= date   && date <= max ) )
+      {
+        return true;
+      }
+      return false;
+  }
+);
+$('#dateTimePickerFrom, #dateTimePickerTo').on("changeDate", function() {
+  oTable.draw();
+});
       $(document).ready(function() {
         $('#hii').DataTable();
       });
@@ -63,53 +89,105 @@ tr:nth-child(even) {
         <br>
         <div class="row">
             <div class="col-sm-4">Priod</div>
-                <div class="container">
-                    <div class='col-sm-1'>from</div>
-                        <div class='col-sm-3'>
-                            <div class="form-group">
-                                <div class='input-group date' id='dateTimePicker1'>
-                                     <input type='text' class="form-control" id="dateTimePick1" />
-                                    <span class="input-group-addon">
+            <div class="container">
+                <div class='col-sm-3'>
+                    <div class="form-group form-inline">
+                        <span id="date-label-from" class="date-label">From: </span>
+                        <div class='input-group date' id='dateTimePickerFrom'>
+                            <input type='text' class="form-control" id="dateTimePick1" />
+                            <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                     </span>
-                                </div>
-                            </div>
                         </div>
-<div class='col-sm-1'>To</div>
-                    <div class='col-sm-3'>
-                            <div class="form-group">
-                                <div class='input-group date' id='dateTimePicker2'>
-                                    <input type='text' class="form-control" id="dateTimePick2" />
-                                    <span class="input-group-addon">
+                    </div>
+                </div>
+                <div class='col-sm-3'>
+                    <div class="form-group form-inline ">
+                        <span id="date-label-to" class="date-label">To: </span>
+                        <div class='input-group date' id='dateTimePickerTo'>
+                            <input type='text' class="form-control" id="dateTimePick2" />
+                            <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                                     </span>
-                                </div>
-                            </div>
                         </div>
-                        <script type="text/javascript">
+                    </div>
+                </div>
+                <script type="text/javascript">
             $(function () {
-                $('#dateTimePicker1').datetimepicker({
-                 format: 'YYYY-MM-DD HH:mm'});
-
-                $('#dateTimePicker2').datetimepicker({
-                 format: 'YYYY-MM-DD HH:mm'});
+              oTable = $('#hii').dataTable();
+                $('#dateTimePickerFrom').datetimepicker({
+                 format: 'YYYY-MM-DD HH:mm',
+                 });
+                $('#dateTimePickerTo').datetimepicker({
+                 format: 'YYYY-MM-DD HH:mm',
+                 });
             });
         </script>
-                </div>
+            </div>
         </div>
         <br>
         <div class="row">
             <div class="col-sm-4"></div>
             <div class="col-sm-8">
                 <button type="button" class="btn btn-success" onclick="filterMe()">Apply</button>
-                <button type="button" class="btn btn-warning">Download CSV</button>
+                <button type="button" class="btn btn-warning" onclick="csvMe1()" id="csvButton" >Download CSV</button>
                 <script>
 
+function csvMe1() {
+  var titles = [];
+  var data = [];
 
-                $(function() {
+  $('.dataTable  th').each(function() {
+    titles.push($(this).text());
+  });
+
+  $('.dataTable  td').each(function() {
+    data.push($(this).text());
+  });
+  var CSVString = prepCSVRow(titles, titles.length, '');
+  CSVString = prepCSVRow(data, titles.length, CSVString);
+  var downloadLink = document.createElement("a");
+  var blob = new Blob(["\ufeff", CSVString]);
+  var url = URL.createObjectURL(blob);
+  downloadLink.href = url;
+  downloadLink.download = "data.csv";
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+}
+
+function prepCSVRow(arr, columnCount, initial) {
+  var row = ''; // this will hold data
+  var delimeter = ','; // data slice separator, in excel it's `;`, in usual CSv it's `,`
+  var newLine = '\r\n'; // newline separator for CSV row
+
+ function splitArray(_arr, _count) {
+    var splitted = [];
+    var result = [];
+    _arr.forEach(function(item, idx) {
+      if ((idx + 1) % _count === 0) {
+        splitted.push(item);
+        result.push(splitted);
+        splitted = [];
+      } else {
+        splitted.push(item);
+      }
+    });
+    return result;
+  }
+  var plainArr = splitArray(arr, columnCount);
+  plainArr.forEach(function(arrItem) {
+    arrItem.forEach(function(item, idx) {
+      row += item + ((idx + 1) === arrItem.length ? '' : delimeter);
+    });
+    row += newLine;
+  });
+  return initial + row;
+}
+
+$(function() {
   oTable = $('#hii').dataTable();
 })
-
 function filterMe() {
   var types = $('input:checkbox[name="type"]:checked').map(function() {
     return '^' + this.value + '\$';
@@ -117,223 +195,7 @@ function filterMe() {
   oTable.fnFilter(types, 3, true, false, false, false);
 }
 
-                    function tableCreate() {
-                        $("#hii").remove();
-                        var age = document.getElementById("dateTimePick1").value;
-                        var stop = document.getElementById("stopCheck").checked;
-                        var queue = document.getElementById("queueCheck").checked;
-                        var wrong = document.getElementById("wrongCheck").checked;
-                        var pedestrian = document.getElementById("pedestrianCheck").checked;
-                        var image = document.getElementById("imageCheck").checked;
-                        var notCheck = ((stop == false) && (queue == false) && (wrong == false) && (pedestrian == false) && (image == false))
-
-                        var stopType = {{stopType | safe }};
-                        var queueType = {{queueType | safe }};
-                        var wrongType = {{wrongType | safe }};
-                        var pedestrianType = {{pedestrianType | safe }};
-                        var imageType = {{imageType | safe }};
-                        var allIncidents = {{allIncidents | safe}}
-                      //  let tbl = document.getElementById("hii");
-                        let body = document.getElementsByTagName('here')[0];
-                        let tbl = document.createElement("hii");
-                        let thead = document.createElement('thead');
-                        let thr = document.createElement('tr');
-                        let th1 = document.createElement('th');
-                        th.appendChild(document.createTextNode("COUNT"));
-                        thr.appendChild(th1);
-                        let th2 = document.createElement('th');
-                        th2.appendChild(document.createTextNode("TIME"));
-                        thr.appendChild(th2);
-                        let th3 = document.createElement('th');
-                        th3.appendChild(document.createTextNode("NAME"));
-                        thr.appendChild(th3);
-                        let th4 = document.createElement('th');
-                        th4.appendChild(document.createTextNode("TYPE"));
-                        thr.appendChild(th4);
-                        let th5 = document.createElement('th');
-                        th5.appendChild(document.createTextNode("IMAGE"));
-                        thr.appendChild(th5);
-                        thead.appendChild(thr);
-                        tbl.appendChild(thead);
-                        let tbdy = document.createElement('tbody');
-                        if ( notCheck == true ) {
-                              for (var i = 0; i < allIncidents.length; i++) {
-                                 let newRow = tbl.insertRow(-1);
-                                 let idCell = newRow.insertCell(0);
-                                 let timeCell = newRow.insertCell(1);
-                                 let nameCell = newRow.insertCell(2);
-                                 let typeCell = newRow.insertCell(3);
-                                 let imageCell = newRow.insertCell(4);
-                                 var obj = allIncidents[i];
-                                 for (var key in  obj) {
-                                            let newText = document.createTextNode(obj[key])
-                                            if (key == 'id' ) {
-                                            idCell.appendChild(newText);
-                                            }
-                                            else if (key == 'videodatetime') {
-                                            timeCell.appendChild(newText);
-                                            }
-                                            else if (key == 'name' ) {
-                                            nameCell.appendChild(newText);
-                                            }
-                                            else if (key == 'type') {
-                                            typeCell.appendChild(newText);
-                                             }
-                                            else if (key == 'video_name') {
-                                            imageCell.innerHTML = '<video id="video1" width="150"><source src="{% get_static_prefix %}videos/' + obj[key] + '.mp4" type="video/mp4">Your browser does not support HTML5 video.</video><br><br><a href="{% get_static_prefix %}videos/' + obj[key] + '.mp4" id="video2" target="_blank"><button onclick="playPause()">Play</button></a><a download="GFG.mp4" href="{% get_static_prefix %}videos/' + obj[key] + '.mp4"><button type="button">Download</button></a>';
-                                             }
-                                 }
-                              }
-                         }
-
-                        if ( stop == true ) {
-                        for (var i = 0; i < stopType.length; i++) {
-                                 let newRow = tbl.insertRow(-1);
-                                 let idCell = newRow.insertCell(0);
-                                 let timeCell = newRow.insertCell(1);
-                                 let nameCell = newRow.insertCell(2);
-                                 let typeCell = newRow.insertCell(3);
-                                 let imageCell = newRow.insertCell(4);
-                                 var obj = stopType[i];
-                                 for (var key in  obj) {
-                                            let newText = document.createTextNode(obj[key])
-                                            if (key == 'id' ) {
-                                            idCell.appendChild(newText);
-                                            }
-                                            else if (key == 'videodatetime') {
-                                            timeCell.appendChild(newText);
-                                            }
-                                            else if (key == 'name' ) {
-                                            nameCell.appendChild(newText);
-                                            }
-                                            else if (key == 'type') {
-                                            typeCell.appendChild(newText);
-                                             }
-                                            else if (key == 'video_name') {
-                                            imageCell.innerHTML = '<video id="video1" width="150"><source src="{% get_static_prefix %}videos/' + obj[key] + '.mp4" type="video/mp4">Your browser does not support HTML5 video.</video><br><br><a href="{% get_static_prefix %}videos/' + obj[key] + '.mp4" id="video2" target="_blank"><button onclick="playPause()">Play</button></a><a download="GFG.mp4" href="{% get_static_prefix %}videos/' + obj[key] + '.mp4"><button type="button">Download</button></a>';
-                                             }
-                                 }
-                              }
-                              }
-                              if ( queue == true ) {
-                              for (var i = 0; i < queueType.length; i++) {
-                                 let newRow = tbl.insertRow(-1);
-                                 let idCell = newRow.insertCell(0);
-                                 let timeCell = newRow.insertCell(1);
-                                 let nameCell = newRow.insertCell(2);
-                                 let typeCell = newRow.insertCell(3);
-                                 let imageCell = newRow.insertCell(4);
-                                 var obj = queueType[i];
-                                 for (var key in  obj) {
-                                            let newText = document.createTextNode(obj[key])
-                                            if (key == 'id' ) {
-                                            idCell.appendChild(newText);
-                                            }
-                                            else if (key == 'videodatetime') {
-                                            timeCell.appendChild(newText);
-                                            }
-                                            else if (key == 'name' ) {
-                                            nameCell.appendChild(newText);
-                                            }
-                                            else if (key == 'type') {
-                                            typeCell.appendChild(newText);
-                                             }
-                                            else if (key == 'video_name') {
-                                            imageCell.innerHTML = '<video id="video1" width="150"><source src="{% get_static_prefix %}videos/' + obj[key] + '.mp4" type="video/mp4">Your browser does not support HTML5 video.</video><br><br><a href="{% get_static_prefix %}videos/' + obj[key] + '.mp4" id="video2" target="_blank"><button onclick="playPause()">Play</button></a><a download="GFG.mp4" href="{% get_static_prefix %}videos/' + obj[key] + '.mp4"><button type="button">Download</button></a>';
-                                             }
-                                 }
-                              }
-                              }
-                              if ( wrong == true ) {
-                              for (var i = 0; i < wrongType.length; i++) {
-                                 let newRow = tbl.insertRow(-1);
-                                 let idCell = newRow.insertCell(0);
-                                 let timeCell = newRow.insertCell(1);
-                                 let nameCell = newRow.insertCell(2);
-                                 let typeCell = newRow.insertCell(3);
-                                 let imageCell = newRow.insertCell(4);
-                                 var obj = wrongType[i];
-                                 for (var key in  obj) {
-                                            let newText = document.createTextNode(obj[key])
-                                            if (key == 'id' ) {
-                                            idCell.appendChild(newText);
-                                            }
-                                            else if (key == 'videodatetime') {
-                                            timeCell.appendChild(newText);
-                                            }
-                                            else if (key == 'name' ) {
-                                            nameCell.appendChild(newText);
-                                            }
-                                            else if (key == 'type') {
-                                            typeCell.appendChild(newText);
-                                             }
-                                            else if (key == 'video_name') {
-                                            imageCell.innerHTML = '<video id="video1" width="150"><source src="{% get_static_prefix %}videos/' + obj[key] + '.mp4" type="video/mp4">Your browser does not support HTML5 video.</video><br><br><a href="{% get_static_prefix %}videos/' + obj[key] + '.mp4" id="video2" target="_blank"><button onclick="playPause()">Play</button></a><a download="GFG.mp4" href="{% get_static_prefix %}videos/' + obj[key] + '.mp4"><button type="button">Download</button></a>';
-                                             }
-                                 }
-                              }
-                              }
-                              if ( pedestrian == true ) {
-                              for (var i = 0; i < pedestrianType.length; i++) {
-                                 let newRow = tbl.insertRow(-1);
-                                 let idCell = newRow.insertCell(0);
-                                 let timeCell = newRow.insertCell(1);
-                                 let nameCell = newRow.insertCell(2);
-                                 let typeCell = newRow.insertCell(3);
-                                 let imageCell = newRow.insertCell(4);
-                                 var obj = pedestrianType[i];
-                                 for (var key in  obj) {
-                                            let newText = document.createTextNode(obj[key])
-                                            if (key == 'id' ) {
-                                            idCell.appendChild(newText);
-                                            }
-                                            else if (key == 'videodatetime') {
-                                            timeCell.appendChild(newText);
-                                            }
-                                            else if (key == 'name' ) {
-                                            nameCell.appendChild(newText);
-                                            }
-                                            else if (key == 'type') {
-                                            typeCell.appendChild(newText);
-                                             }
-                                            else if (key == 'video_name') {
-                                            imageCell.innerHTML = '<video id="video1" width="150"><source src="{% get_static_prefix %}videos/' + obj[key] + '.mp4" type="video/mp4">Your browser does not support HTML5 video.</video><br><br><a href="{% get_static_prefix %}videos/' + obj[key] + '.mp4" id="video2" target="_blank"><button onclick="playPause()">Play</button></a><a download="GFG.mp4" href="{% get_static_prefix %}videos/' + obj[key] + '.mp4"><button type="button">Download</button></a>';
-                                             }
-                                 }
-                              }
-                              }
-                              if ( image == true ) {
-                              for (var i = 0; i < imageType.length; i++) {
-                                 let newRow = tbl.insertRow(-1);
-                                 let idCell = newRow.insertCell(0);
-                                 let timeCell = newRow.insertCell(1);
-                                 let nameCell = newRow.insertCell(2);
-                                 let typeCell = newRow.insertCell(3);
-                                 let imageCell = newRow.insertCell(4);
-                                 var obj = imageType[i];
-                                 for (var key in  obj) {
-                                            let newText = document.createTextNode(obj[key])
-                                            if (key == 'id' ) {
-                                            idCell.appendChild(newText);
-                                            }
-                                            else if (key == 'videodatetime') {
-                                            timeCell.appendChild(newText);
-                                            }
-                                            else if (key == 'name' ) {
-                                            nameCell.appendChild(newText);
-                                            }
-                                            else if (key == 'type') {
-                                            typeCell.appendChild(newText);
-                                             }
-                                            else if (key == 'video_name') {
-                                            imageCell.innerHTML = '<video id="video1" width="150"><source src="{% get_static_prefix %}videos/' + obj[key] + '.mp4" type="video/mp4">Your browser does not support HTML5 video.</video><br><br><a href="{% get_static_prefix %}videos/' + obj[key] + '.mp4" id="video2" target="_blank"><button onclick="playPause()">Play</button></a><a download="GFG.mp4" href="{% get_static_prefix %}videos/' + obj[key] + '.mp4"><button type="button">Download</button></a>';
-                                             }
-                                 }
-                              }
-                              }
-                        }
                 </script>
-
             </div>
         </div>
     </div>
@@ -345,7 +207,7 @@ function filterMe() {
     </div>
     <div class="panel-body">
         <br>
-        <table id="hii"  class="stripe">
+        <table id="hii"  class="display nowrap">
             <thead>
             <tr>
                 <th >COUNT</th>
@@ -360,22 +222,22 @@ function filterMe() {
             {% for entry in allvideos %}
             <tr>
                 <td>{{ entry.id }}</td>
-                <td>{{ entry.videodatetime}}</td>
+                <td>{{ entry.videodatetime| date:'Y-m-d H:m'}}</td>
                 <td>{{ entry.name}}</td>
                 <td>{{ entry.type}}</td>
                 <td>
                     <div style="    text-align:center">
-                        <video id="video1" width="150">
+                        <video class="embed-responsive-item" id="video1" width="150" controls>
                             <source src="{% get_static_prefix %}videos/{{ entry.video_name}}.mp4"  type="video/mp4">
                             Your browser does not support HTML5 video.
                         </video>
                         <br><br>
-                        <a href="{% get_static_prefix %}videos/{{ entry.video_name}}.mp4" id="video2" target="_blank">
+                        <!--<a href="{% get_static_prefix %}videos/{{ entry.video_name}}.mp4" id="video2" target="_blank">
                             <button onclick="playPause()">Play</button>
                         </a>
                         <a download="GFG.mp4" href="{% get_static_prefix %}videos/{{ entry.video_name}}.mp4">
                             <button type="button">Download</button>
-                        </a>
+                        </a>-->
                         <br><br>
                     </div>
                 </td>
