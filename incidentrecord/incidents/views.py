@@ -17,11 +17,24 @@ def index(request):
         obj.save()
 
     try:
-        type_stop = json.dumps(list(IncidentsInf.objects.filter(type = "Stop").values()), sort_keys=True, indent=1, cls=DjangoJSONEncoder)
+        #if "stopCheck" in request.POST:
+        stopType = json.dumps(list(IncidentsInf.objects.filter(type="Stop").values()), sort_keys=True, indent=1, cls=DjangoJSONEncoder)
+         #    return render(request, 'home.html', { 'stopType': stopType})
+        #if "queueCheck" in request.POST:
+        queueType = json.dumps(list(IncidentsInf.objects.filter(type="Queue").values()), sort_keys=True, indent=1, cls=DjangoJSONEncoder)
+         #    return render(request, 'home.html', {'queueType': queueType})
+        #if "wrongCheck" in request.POST:
+        wrongType = json.dumps(list(IncidentsInf.objects.filter(type="WrongWay").values()), sort_keys=True, indent=1, cls=DjangoJSONEncoder)
+         #    return render(request, 'home.html', {'wrongType': wrongType})
+        #if "pedestrainCheck" in request.POST:
+        pedestrianType = json.dumps(list(IncidentsInf.objects.filter(type="Pedestrian").values()), sort_keys=True, indent=1, cls=DjangoJSONEncoder)
+         #    return render(request, 'home.html', {'': wrongType})
+        #if "imageCheck" in request.POST:
+        imageType = json.dumps(list(IncidentsInf.objects.filter(type="ImageDegradation").values()), sort_keys=True, indent=1, cls=DjangoJSONEncoder)
+        #    return render(request, 'home.html', {'imageType': imageType})
+        allIncidents = json.dumps(list(IncidentsInf.objects.all().values()), sort_keys=True, indent=1, cls=DjangoJSONEncoder)
+
         allvideos = IncidentsInf.objects.all().values()
-        print(type_stop)
-        print ("############")
-        print ((allvideos))
     except IncidentsInf.DoesNotExist:
         raise Http404("Question does not exist")
-    return render(request, 'home.html',  {'allvideos': allvideos, 'type_stop': type_stop})
+    return render(request, 'home.html',  {'allvideos': allvideos, 'allIncidents': allIncidents, 'stopType': stopType, 'queueType': queueType, 'wrongType': wrongType, 'pedestrianType': pedestrianType, 'imageType': imageType})
